@@ -36,7 +36,7 @@
                     RefreshReal()
                 End SyncLock
             Catch ex As Exception
-                Log(ex, "加载 PCL 主页自定义信息失败", LogLevel.Msgbox)
+                ShowPanHomepageLoadError(ex)
             End Try
         End Sub, $"刷新自定义主页 #{GetUuid()}")
     End Sub
