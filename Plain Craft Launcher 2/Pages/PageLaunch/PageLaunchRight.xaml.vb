@@ -178,10 +178,7 @@ Download:
             Refresh()
         Catch ex As Exception
             Log(ex, $"联网下载自定义主页失败（{Address}）")
-            RunInUi(Sub()
-                        LabHint3.Text = GetExceptionSummary(ex)
-                        PanHomepageLoadError.Visibility = Visibility.Visible
-                    End Sub)
+            ShowPanHomepageLoadError(ex)
         End Try
     End Sub
 
@@ -235,21 +232,21 @@ Download:
             PanCustom.Children.Add(GetObjectFromXML(Content))
         Catch ex As UnauthorizedAccessException
             Log(ex, "加载失败的自定义主页内容：" & vbCrLf & Content)
-            RunInUi(Sub()
-                        LabHint3.Text = ex.Message
-                        PanHomepageLoadError.Visibility = Visibility.Visible
-                    End Sub)
+            ShowPanHomepageLoadError(ex)
         Catch ex As Exception
             Log(ex, "加载失败的自定义主页内容：" & vbCrLf & Content)
-            RunInUi(Sub()
-                        LabHint3.Text = $"自定义主页内容编写有误，请根据下列错误信息进行检查：{vbCrLf}{GetExceptionSummary(ex)}"
-                        PanHomepageLoadError.Visibility = Visibility.Visible
-                    End Sub)
+            ShowPanHomepageLoadError(ex)
         End Try
         Log($"[Page] 实例化：加载自定义主页 UI 完成")
-        Return
     End Sub
     Private LoadedContentHash As Integer = -1
+
+    Private Sub ShowPanHomepageLoadError(ex As Exception)
+        RunInUi(Sub()
+                    LabHint3.Text = GetExceptionSummary(ex)
+                    PanHomepageLoadError.Visibility = Visibility.Visible
+                End Sub)
+    End Sub
 
     Private Sub BtnRefreshHomepage_Click(sender As Object, e As EventArgs) Handles BtnRefreshHomepage.Click
         RunInUi(Sub()
