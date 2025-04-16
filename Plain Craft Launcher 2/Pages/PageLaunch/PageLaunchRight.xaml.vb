@@ -4,7 +4,6 @@
     Private Sub Init() Handles Me.Loaded
         PanBack.ScrollToHome()
         PanScroll = PanBack '不知道为啥不能在 XAML 设置
-        PanHomepageLoadError.Visibility = Visibility.Collapsed
         PanLog.Visibility = If(ModeDebug, Visibility.Visible, Visibility.Collapsed)
         '快照版提示
 #If BETA Then
@@ -36,7 +35,7 @@
                     RefreshReal()
                 End SyncLock
             Catch ex As Exception
-                ShowPanHomepageLoadError(ex)
+                Log(ex, "加载 PCL 主页自定义信息失败", LogLevel.Feedback)
             End Try
         End Sub, $"刷新自定义主页 #{GetUuid()}")
     End Sub
@@ -230,9 +229,6 @@ Download:
             Content = "<StackPanel xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:sys=""clr-namespace:System;assembly=mscorlib"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:local=""clr-namespace:PCL;assembly=Plain Craft Launcher 2"">" & Content & "</StackPanel>"
             Log($"[Page] 实例化：加载自定义主页 UI 开始，最终内容长度：{Content.Count}")
             PanCustom.Children.Add(GetObjectFromXML(Content))
-        Catch ex As UnauthorizedAccessException
-            Log(ex, "加载失败的自定义主页内容：" & vbCrLf & Content)
-            ShowPanHomepageLoadError(ex)
         Catch ex As Exception
             Log(ex, "加载失败的自定义主页内容：" & vbCrLf & Content)
             ShowPanHomepageLoadError(ex)
@@ -242,18 +238,9 @@ Download:
     Private LoadedContentHash As Integer = -1
 
     Private Sub ShowPanHomepageLoadError(ex As Exception)
-        RunInUi(Sub()
-                    LabHint3.Text = GetExceptionSummary(ex)
-                    PanHomepageLoadError.Visibility = Visibility.Visible
-                End Sub)
+        RunInUi(Sub() PanCustom.Children.Add(New Control With {.Tag = GetExceptionSummary(ex), .Style = FindResource("MainpageErrorPresenter")}))
     End Sub
 
-    Private Sub BtnRefreshHomepage_Click(sender As Object, e As EventArgs) Handles BtnRefreshHomepage.Click
-        RunInUi(Sub()
-                    PanHomepageLoadError.Visibility = Visibility.Collapsed
-                End Sub)
-        ForceRefresh()
-    End Sub
 
 #End Region
 

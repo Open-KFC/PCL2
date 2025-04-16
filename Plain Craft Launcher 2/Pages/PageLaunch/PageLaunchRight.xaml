@@ -4,6 +4,22 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:local="clr-namespace:PCL"> <!-- 不知道为啥只有这个文件不能在 XAML 设置 PanScroll -->
+    <local:MyPageRight.Resources>
+        <Style x:Key="MainpageErrorPresenter" TargetType="Control">
+            <Setter Property="Margin" Value="0,0,0,15" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <local:MyCard Title="加载自定义主页失败">
+                            <TextBlock Text="{TemplateBinding Tag}" TextWrapping="Wrap" Margin="25,38,23,15" FontSize="13.5" />
+                            <local:MyIconButton EventType="刷新主页" Height="22" Width="22" Margin="9" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                Logo="M875.52 148.48C783.36 56.32 655.36 0 512 0 291.84 0 107.52 138.24 30.72 332.8l122.88 46.08C204.8 230.4 348.16 128 512 128c107.52 0 199.68 40.96 271.36 112.64L640 384h384V0L875.52 148.48zM512 896c-107.52 0-199.68-40.96-271.36-112.64L384 640H0v384l148.48-148.48C240.64 967.68 368.64 1024 512 1024c220.16 0 404.48-138.24 481.28-332.8L870.4 645.12C819.2 793.6 675.84 896 512 896z" />
+                        </local:MyCard>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </local:MyPageRight.Resources>
     <local:MyScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="PanBack">
         <StackPanel Name="PanMain" Margin="25,25,25,10" Grid.IsSharedSizeScope="True">
             <StackPanel x:Name="PanCustom">
@@ -15,12 +31,6 @@
                 <StackPanel Margin="25,38,23,15">
                     <TextBlock x:Name="LabHint1" TextWrapping="Wrap" Margin="0,0,0,2" FontSize="13.5" />
                     <TextBlock x:Name="LabHint2" TextWrapping="Wrap" Margin="0,0,0,2" FontSize="13.5" />
-                </StackPanel>
-            </local:MyCard>
-            <local:MyCard Margin="0,0,0,15" Title="加载自定义主页失败" x:Name="PanHomepageLoadError">
-                <StackPanel Margin="25,38,23,15">
-                    <TextBlock x:Name="LabHint3" TextWrapping="Wrap" Margin="0,0,0,2" FontSize="13.5" />
-                    <local:MyButton x:Name="BtnRefreshHomepage" Margin="0,4,0,4" Width="250" Height="35" ColorType="Highlight">刷新主页</local:MyButton>
                 </StackPanel>
             </local:MyCard>
             <local:MyCard Margin="0,0,0,15" Title="启动日志" x:Name="PanLog">
