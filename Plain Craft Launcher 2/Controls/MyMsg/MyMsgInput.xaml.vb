@@ -55,6 +55,7 @@
     Private Sub Close()
         '结束线程阻塞
         MyConverter.WaitFrame.Continue = False
+        MyConverter.Semaphore.Release()
         Interop.ComponentDispatcher.PopModal()
         '动画
         AniStart({

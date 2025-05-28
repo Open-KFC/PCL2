@@ -52,7 +52,10 @@
     End Sub
     Private Sub Close()
         '结束线程阻塞
-        If MyConverter.ForceWait OrElse Not MyConverter.Button2 = "" Then MyConverter.WaitFrame.Continue = False
+        If MyConverter.ForceWait OrElse Not MyConverter.Button2 = "" Then
+            MyConverter.WaitFrame.Continue = False
+            MyConverter.Semaphore.Release()
+        End If
         Interop.ComponentDispatcher.PopModal()
         '动画
         AniStart({

@@ -232,9 +232,9 @@ Retry:
                 Dim Uuid As String = McLoginMsLoader.Output.Uuid
                 Dim SkinData As JObject = GetJson(McLoginMsLoader.Output.ProfileJson)
                 '获取玩家的所有披风
-                Dim SelId As Integer? = Nothing
-                RunInUiWait(
-                Sub()
+                Dim CompletionSource As New Tasks.TaskCompletionSource(Of Integer?)
+                Dispatcher.Invoke(
+                Async Function()
                     Try
                         Dim CapeNames As New Dictionary(Of String, String) From {
                             {"Migrator", "迁移者披风"}, {"MapMaker", "Realms 地图制作者披风"}, {"Moderator", "Mojira 管理员披风"},
@@ -251,12 +251,20 @@ Retry:
                             If CapeNames.ContainsKey(CapeName) Then CapeName = CapeNames(CapeName)
                             SelectionControl.Add(New MyRadioBox With {.Text = CapeName})
                         Next
-                        SelId = MyMsgBoxSelect(SelectionControl, "选择披风", "确定", "取消")
+                        CompletionSource.SetResult(Await MyMsgBoxSelectAsync(SelectionControl, "选择披风", "确定", "取消"))
                     Catch ex As Exception
-                        Log(ex, "获取玩家皮肤列表失败", LogLevel.Feedback)
+                        CompletionSource.SetException(ex)
                     End Try
-                End Sub)
-                If SelId Is Nothing Then Exit Sub
+                End Function)
+                Dim SelId As Integer
+                Try
+                    Dim Tmp As Integer? = CompletionSource.Task.GetAwaiter.GetResult()
+                    If Tmp Is Nothing Then Exit Sub
+                    SelId = Tmp
+                Catch ex As Exception
+                    Log(ex, "获取玩家皮肤列表失败", LogLevel.Feedback)
+                    Exit Sub
+                End Try
                 '发送请求
                 Dim Result As String = NetRequestRetry("https://api.minecraftservices.com/minecraft/profile/capes/active",
                     If(SelId = 0, "DELETE", "PUT"),

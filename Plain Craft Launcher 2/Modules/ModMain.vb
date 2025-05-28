@@ -211,6 +211,7 @@ EndHint:
         Public IsWarn As Boolean = False
         Public ForceWait As Boolean = False
         Public WaitFrame As New DispatcherFrame(True)
+        Public Semaphore As New SemaphoreSlim(0, 1)
         ''' <summary>
         ''' 弹窗是否已经关闭。
         ''' </summary>
@@ -288,6 +289,40 @@ EndHint:
             Return 1
         End If
     End Function
+    Public Async Function MyMsgBoxAsync(Caption As String, Optional Title As String = "提示",
+                                        Optional Button1 As String = "确定", Optional Button2 As String = "", Optional Button3 As String = "",
+                                        Optional IsWarn As Boolean = False, Optional HighLight As Boolean = True, Optional ForceWait As Boolean = False,
+                                        Optional Button1Action As Action = Nothing, Optional Button2Action As Action = Nothing, Optional Button3Action As Action = Nothing) As Tasks.Task(Of Integer)
+        Dim Converter As New MyMsgBoxConverter With {.Type = MyMsgBoxType.Text, .Button1 = Button1, .Button2 = Button2, .Button3 = Button3, .Text = Caption, .IsWarn = IsWarn, .Title = Title, .HighLight = HighLight, .ForceWait = True, .Button1Action = Button1Action, .Button2Action = Button2Action, .Button3Action = Button3Action}
+        WaitingMyMsgBox.Add(Converter)
+        If RunInUi() Then MyMsgBoxTick()
+        If Button2.Length = 0 AndAlso Not ForceWait Then
+            Return 1
+        Else
+            If FrmMain?.PanMsg Is Nothing AndAlso RunInUi() Then
+                WaitingMyMsgBox.Remove(Converter)
+                If Button2.Length > 0 Then
+                    Dim RawResult As MsgBoxResult = MsgBox(Caption, If(Button3.Length > 0, MsgBoxStyle.YesNoCancel, MsgBoxStyle.YesNo) + If(IsWarn, MsgBoxStyle.Critical, MsgBoxStyle.Question), Title)
+                    Select Case RawResult
+                        Case MsgBoxResult.Yes
+                            Converter.Result = 1
+                        Case MsgBoxResult.No
+                            Converter.Result = 2
+                        Case MsgBoxResult.Cancel
+                            Converter.Result = 3
+                    End Select
+                Else
+                    MsgBox(Caption, MsgBoxStyle.OkOnly + If(IsWarn, MsgBoxStyle.Critical, MsgBoxStyle.Question), Title)
+                    Converter.Result = 1
+                End If
+                Log("[Control] 主窗体加载完成前出现意料外的等待弹窗：" & Button1 & "," & Button2 & "," & Button3, LogLevel.Debug)
+            Else
+                FrmMain.DragStop()
+                Await Converter.Semaphore.WaitAsync()
+            End If
+            Return Converter.Result
+        End If
+    End Function
     ''' <summary>
     ''' 显示输入框并返回输入的文本。若点击第二个按钮，则返回 Nothing。
     ''' </summary>
@@ -314,6 +349,16 @@ EndHint:
         Log("[Control] 输入弹框返回：" & If(Converter.Result, "null"))
         Return Converter.Result
     End Function
+    Public Async Function MyMsgBoxInputAsync(Title As String, Optional Text As String = "", Optional DefaultInput As String = "", Optional ValidateRules As ObjectModel.Collection(Of Validate) = Nothing, Optional HintText As String = "", Optional Button1 As String = "确定", Optional Button2 As String = "取消", Optional IsWarn As Boolean = False) As Tasks.Task(Of String)
+        '将弹窗列入队列
+        Dim Converter As New MyMsgBoxConverter With {.Text = Text, .HintText = HintText, .Type = MyMsgBoxType.Input, .ValidateRules = If(ValidateRules, New ObjectModel.Collection(Of Validate)), .Button1 = Button1, .Button2 = Button2, .Content = DefaultInput, .IsWarn = IsWarn, .Title = Title}
+        WaitingMyMsgBox.Add(Converter)
+        '虽然我也不知道这是啥但是能用就成了 :)
+        FrmMain?.DragStop()
+        Await Converter.Semaphore.WaitAsync()
+        Log("[Control] 输入弹框返回：" & If(Converter.Result, "null"))
+        Return Converter.Result
+    End Function
     ''' <summary>
     ''' 显示选择框并返回选择的第几项（从 0 开始）。若点击第二个按钮，则返回 Nothing。
     ''' </summary>
@@ -336,7 +381,14 @@ EndHint:
         Log("[Control] 选择弹框返回：" & If(Converter.Result, "null"))
         Return Converter.Result
     End Function
-
+    Public Async Function MyMsgBoxSelectAsync(Selections As List(Of IMyRadio), Optional Title As String = "提示", Optional Button1 As String = "确定", Optional Button2 As String = "", Optional IsWarn As Boolean = False) As Tasks.Task(Of Integer?)
+        Dim Converter As New MyMsgBoxConverter With {.Type = MyMsgBoxType.Select, .Button1 = Button1, .Button2 = Button2, .Content = Selections, .IsWarn = IsWarn, .Title = Title}
+        WaitingMyMsgBox.Add(Converter)
+        FrmMain?.DragStop()
+        Await Converter.Semaphore.WaitAsync()
+        Log("[Control] 选择弹框返回：" & If(Converter.Result, "null"))
+        Return Converter.Result
+    End Function
     ''' <summary>
     ''' 等待显示的弹窗。
     ''' </summary>
