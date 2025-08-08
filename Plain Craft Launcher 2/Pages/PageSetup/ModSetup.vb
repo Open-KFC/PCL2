@@ -252,18 +252,14 @@ Public Class ModSetup
     ''' 改变某个设置项的值。
     ''' </summary>
     Public Sub [Set](key As String, value As Object, Optional forceReload As Boolean = False, Optional instance As McInstance = Nothing)
-        [Set](key, value. forceReload, instancePath:=instance?.Path)
-    End Sub
-
-    Public Sub [Set](key As String, value As Object, Optional forceReload As Boolean = False, Optional instancePath As String = Nothing)
         Dim entry As SetupEntry = SetupDict(key)
         Dim type As Type = entry.DefaultValue.GetType()
         If type = GetType(Boolean) Then
-            SetupService.SetBool(entry, value, instancePath)
+            SetupService.SetBool(entry, value, instance?.Path)
         ElseIf type = GetType(Integer) Then
-            SetupService.SetInt32(entry, value, instancePath)
+            SetupService.SetInt32(entry, value, instance?.Path)
         ElseIf type = GetType(String) Then
-            SetupService.SetString(entry, value, instancePath)
+            SetupService.SetString(entry, value, instance?.Path)
         Else
             Throw New NotSupportedException("请让开发者完善配置系统迁移……")
         End If
@@ -273,24 +269,20 @@ Public Class ModSetup
     ''' 应用某个设置项的值。
     ''' </summary>
     Public Function Load(key As String, Optional forceReload As Boolean = False, Optional instance As McInstance = Nothing)
-        Return Load(key, forceReload, instancePath:=instance?.Path)
-    End Function
-
-    Public Function Load(key As String, Optional forceReload As Boolean = False, Optional instancePath As String = Nothing)
         Dim entry As SetupEntry = SetupDict(key)
         Dim type As Type = entry.DefaultValue.GetType()
         Dim value
         If type = GetType(Boolean) Then 
-            value = SetupService.GetBool(entry, instancePath)
+            value = SetupService.GetBool(entry, instance?.Path)
         ElseIf type = GetType(Integer) Then 
-            value = SetupService.GetInt32(entry, instancePath)
+            value = SetupService.GetInt32(entry, instance?.Path)
         ElseIf type = GetType(String) Then
-            value = SetupService.GetString(entry, instancePath)
+            value = SetupService.GetString(entry, instance?.Path)
         Else
             Throw New NotSupportedException("请让开发者完善配置系统迁移……")
         End If
 #disable Warning BC40000 ' Obsolete
-        SetupService.RaiseSetupChanged(SetupDict(key), value, value, instancePath)
+        SetupService.RaiseSetupChanged(SetupDict(key), value, value, instance?.Path)
 #enable Warning BC40000
         Return value
     End Function
@@ -299,18 +291,14 @@ Public Class ModSetup
     ''' 获取某个设置项的值。
     ''' </summary>
     Public Function [Get](key As String, Optional instance As McInstance = Nothing)
-        Return [Get](key, instancePath:=instance?.Path)
-    End Function
-
-    Public Function [Get](key As String, Optional instancePath As String = Nothing)
         Dim entry As SetupEntry = SetupDict(key)
         Dim type As Type = entry.DefaultValue.GetType()
         If type = GetType(Boolean) Then 
-            Return SetupService.GetBool(entry, instancePath)
+            Return SetupService.GetBool(entry, instance?.Path)
         ElseIf type = GetType(Integer) Then 
-            Return SetupService.GetInt32(entry, instancePath)
+            Return SetupService.GetInt32(entry, instance?.Path)
         ElseIf type = GetType(String) Then
-            Return SetupService.GetString(entry, instancePath)
+            Return SetupService.GetString(entry, instance?.Path)
         Else
             Throw New NotSupportedException("请让开发者完善配置系统迁移……")
         End If
@@ -320,18 +308,14 @@ Public Class ModSetup
     ''' 初始化某个设置项的值。
     ''' </summary>
     Public Sub Reset(key As String, Optional forceReload As Boolean = False, Optional instance As McInstance = Nothing)
-        Reset(key, forceReload, instancePath:=instance?.Path)
-    End Sub
-
-    Public Sub Reset(key As String, Optional forceReload As Boolean = False, Optional instancePath As String = Nothing)
         Dim entry As SetupEntry = SetupDict(key)
         Dim type As Type = entry.DefaultValue.GetType()
         If type = GetType(Boolean) Then 
-            SetupService.DeleteBool(entry, instancePath)
+            SetupService.DeleteBool(entry, instance?.Path)
         ElseIf type = GetType(Integer) Then 
-            SetupService.DeleteInt32(entry, instancePath)
+            SetupService.DeleteInt32(entry, instance?.Path)
         ElseIf type = GetType(String) Then
-            SetupService.DeleteString(entry, instancePath)
+            SetupService.DeleteString(entry, instance?.Path)
         Else
             Throw New NotSupportedException("请让开发者完善配置系统迁移……")
         End If
@@ -349,12 +333,8 @@ Public Class ModSetup
     ''' 某个设置项是否从未被设置过。
     ''' </summary>
     Public Function IsUnset(key As String, Optional instance As McInstance = Nothing) As Boolean
-        Return IsUnset(key, instancePath:=instance?.Path)
-    End Function
-
-    Public Function IsUnset(key As String, Optional instancePath As String = Nothing) As Boolean
         Dim entry As SetupEntry = SetupDict(key)
-        Return SetupService.IsUnset(entry, instancePath)
+        Return SetupService.IsUnset(entry, instance?.Path)
     End Function
 
 #End Region
