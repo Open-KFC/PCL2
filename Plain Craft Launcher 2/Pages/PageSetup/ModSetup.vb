@@ -213,7 +213,29 @@ Public Class ModSetup
         {"VersionServerAuthName", New SetupEntry(SetupEntrySource.GameInstance, "VersionServerAuthName", "")},
         {"VersionServerAuthServer", New SetupEntry(SetupEntrySource.GameInstance, "VersionServerAuthServer", "")},
         {"VersionServerLoginLock", New SetupEntry(SetupEntrySource.GameInstance, "VersionServerLoginLock", False)},
-        {"VersionLaunchCount", New SetupEntry(SetupEntrySource.GameInstance, "VersionLaunchCount", 0)}}
+        {"VersionLaunchCount", New SetupEntry(SetupEntrySource.GameInstance, "VersionLaunchCount", 0)},
+        {"IsStar", new SetupEntry(SetupEntrySource.GameInstance, "IsStar", False)},
+        {"DisplayType", new SetupEntry(SetupEntrySource.GameInstance, "DisplayType", 0)},
+        {"Logo", new SetupEntry(SetupEntrySource.GameInstance, "Logo", "")},
+        {"LogoCustom", new SetupEntry(SetupEntrySource.GameInstance, "LogoCustom", False)},
+        {"CustomInfo", new SetupEntry(SetupEntrySource.GameInstance, "CustomInfo", "")},
+        {"Info", new SetupEntry(SetupEntrySource.GameInstance, "Info", "")},
+        {"ReleaseTime", new SetupEntry(SetupEntrySource.GameInstance, "ReleaseTime", "")},
+        {"State", new SetupEntry(SetupEntrySource.GameInstance, "State", 0)},
+        {"VersionFabric", new SetupEntry(SetupEntrySource.GameInstance, "VersionFabric", "")},
+        {"VersionLegacyFabric", new SetupEntry(SetupEntrySource.GameInstance, "VersionLegacyFabric", "")},
+        {"VersionQuilt", new SetupEntry(SetupEntrySource.GameInstance, "VersionQuilt", "")},
+        {"VersionLabyMod", new SetupEntry(SetupEntrySource.GameInstance, "VersionLabyMod", "")},
+        {"VersionOptiFine", new SetupEntry(SetupEntrySource.GameInstance, "VersionOptiFine", "")},
+        {"VersionLiteLoader", new SetupEntry(SetupEntrySource.GameInstance, "VersionLiteLoader", "")},
+        {"VersionForge", new SetupEntry(SetupEntrySource.GameInstance, "VersionForge", "")},
+        {"VersionNeoForge", new SetupEntry(SetupEntrySource.GameInstance, "VersionNeoForge", "")},
+        {"VersionCleanroom", new SetupEntry(SetupEntrySource.GameInstance, "VersionCleanroom", "")},
+        {"VersionApiCode", new SetupEntry(SetupEntrySource.GameInstance, "VersionApiCode", 0)},
+        {"VersionOriginal", new SetupEntry(SetupEntrySource.GameInstance, "VersionOriginal", "")},
+        {"VersionOriginalMain", new SetupEntry(SetupEntrySource.GameInstance, "VersionOriginalMain", 0)},
+        {"VersionOriginalSub", new SetupEntry(SetupEntrySource.GameInstance, "VersionOriginalSub", 0)}
+    }
 
 #Region "基础"
 
@@ -230,14 +252,18 @@ Public Class ModSetup
     ''' 改变某个设置项的值。
     ''' </summary>
     Public Sub [Set](key As String, value As Object, Optional forceReload As Boolean = False, Optional instance As McInstance = Nothing)
+        [Set](key, value. forceReload, instancePath:=instance?.Path)
+    End Sub
+
+    Public Sub [Set](key As String, value As Object, Optional forceReload As Boolean = False, Optional instancePath As String = Nothing)
         Dim entry As SetupEntry = SetupDict(key)
         Dim type As Type = entry.DefaultValue.GetType()
-        If type = GetType(Boolean) Then 
-            SetupService.SetBool(entry, value, instance?.Path)
-        ElseIf type = GetType(Integer) Then 
-            SetupService.SetInt32(entry, value, instance?.Path)
+        If type = GetType(Boolean) Then
+            SetupService.SetBool(entry, value, instancePath)
+        ElseIf type = GetType(Integer) Then
+            SetupService.SetInt32(entry, value, instancePath)
         ElseIf type = GetType(String) Then
-            SetupService.SetString(entry, value, instance?.Path)
+            SetupService.SetString(entry, value, instancePath)
         Else
             Throw New NotSupportedException("请让开发者完善配置系统迁移……")
         End If
@@ -247,20 +273,24 @@ Public Class ModSetup
     ''' 应用某个设置项的值。
     ''' </summary>
     Public Function Load(key As String, Optional forceReload As Boolean = False, Optional instance As McInstance = Nothing)
+        Return Load(key, forceReload, instancePath:=instance?.Path)
+    End Function
+
+    Public Function Load(key As String, Optional forceReload As Boolean = False, Optional instancePath As String = Nothing)
         Dim entry As SetupEntry = SetupDict(key)
         Dim type As Type = entry.DefaultValue.GetType()
         Dim value
         If type = GetType(Boolean) Then 
-            value = SetupService.GetBool(entry, instance?.Path)
+            value = SetupService.GetBool(entry, instancePath)
         ElseIf type = GetType(Integer) Then 
-            value = SetupService.GetInt32(entry, instance?.Path)
+            value = SetupService.GetInt32(entry, instancePath)
         ElseIf type = GetType(String) Then
-            value = SetupService.GetString(entry, instance?.Path)
+            value = SetupService.GetString(entry, instancePath)
         Else
             Throw New NotSupportedException("请让开发者完善配置系统迁移……")
         End If
-#disable Warning BC40000
-        SetupService.RaiseSetupChanged(SetupDict(key), value, value, instance?.Path)
+#disable Warning BC40000 ' Obsolete
+        SetupService.RaiseSetupChanged(SetupDict(key), value, value, instancePath)
 #enable Warning BC40000
         Return value
     End Function
@@ -269,14 +299,18 @@ Public Class ModSetup
     ''' 获取某个设置项的值。
     ''' </summary>
     Public Function [Get](key As String, Optional instance As McInstance = Nothing)
+        Return [Get](key, instancePath:=instance?.Path)
+    End Function
+
+    Public Function [Get](key As String, Optional instancePath As String = Nothing)
         Dim entry As SetupEntry = SetupDict(key)
         Dim type As Type = entry.DefaultValue.GetType()
         If type = GetType(Boolean) Then 
-            Return SetupService.GetBool(entry, instance?.Path)
+            Return SetupService.GetBool(entry, instancePath)
         ElseIf type = GetType(Integer) Then 
-            Return SetupService.GetInt32(entry, instance?.Path)
+            Return SetupService.GetInt32(entry, instancePath)
         ElseIf type = GetType(String) Then
-            Return SetupService.GetString(entry, instance?.Path)
+            Return SetupService.GetString(entry, instancePath)
         Else
             Throw New NotSupportedException("请让开发者完善配置系统迁移……")
         End If
@@ -286,18 +320,23 @@ Public Class ModSetup
     ''' 初始化某个设置项的值。
     ''' </summary>
     Public Sub Reset(key As String, Optional forceReload As Boolean = False, Optional instance As McInstance = Nothing)
+        Reset(key, forceReload, instancePath:=instance?.Path)
+    End Sub
+
+    Public Sub Reset(key As String, Optional forceReload As Boolean = False, Optional instancePath As String = Nothing)
         Dim entry As SetupEntry = SetupDict(key)
         Dim type As Type = entry.DefaultValue.GetType()
         If type = GetType(Boolean) Then 
-            SetupService.DeleteBool(entry, instance?.Path)
+            SetupService.DeleteBool(entry, instancePath)
         ElseIf type = GetType(Integer) Then 
-            SetupService.DeleteInt32(entry, instance?.Path)
+            SetupService.DeleteInt32(entry, instancePath)
         ElseIf type = GetType(String) Then
-            SetupService.DeleteString(entry, instance?.Path)
+            SetupService.DeleteString(entry, instancePath)
         Else
             Throw New NotSupportedException("请让开发者完善配置系统迁移……")
         End If
     End Sub
+
     ''' <summary>
     ''' 获取某个设置项的默认值。
     ''' </summary>
@@ -305,12 +344,17 @@ Public Class ModSetup
         Dim entry As SetupEntry = SetupDict(key)
         Return entry.DefaultValue
     End Function
+
     ''' <summary>
     ''' 某个设置项是否从未被设置过。
     ''' </summary>
     Public Function IsUnset(key As String, Optional instance As McInstance = Nothing) As Boolean
+        Return IsUnset(key, instancePath:=instance?.Path)
+    End Function
+
+    Public Function IsUnset(key As String, Optional instancePath As String = Nothing) As Boolean
         Dim entry As SetupEntry = SetupDict(key)
-        Return SetupService.IsUnset(entry, instance?.Path)
+        Return SetupService.IsUnset(entry, instancePath)
     End Function
 
 #End Region
