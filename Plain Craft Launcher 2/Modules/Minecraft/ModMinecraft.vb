@@ -1,4 +1,5 @@
 ﻿Imports System.IO.Compression
+Imports PCL.Core.ProgramSetup
 
 Public Module ModMinecraft
 
@@ -760,8 +761,8 @@ Recheck:
 #End Region
 ExitDataLoad:
                 '确定实例图标
-                Logo = ReadIni(Path & "PCL\Setup.ini", "Logo", "")
-                If Logo = "" OrElse Not CType(ReadIni(Path & "PCL\Setup.ini", "LogoCustom", False), Boolean) Then
+                Logo = SetupService.GetString(SetupEntries.Instance.LogoPath, Path)
+                If Logo = "" OrElse Not SetupService.GetBool(SetupEntries.Instance.IsLogoCustom, Path) Then
                     Select Case State
                         Case McInstanceState.Original
                             Logo = PathImage & "Blocks/Grass.png"
@@ -794,33 +795,34 @@ ExitDataLoad:
                     End Select
                 End If
                 '确定实例描述
-                Dim CustomInfo As String = ReadIni(Path & "PCL\Setup.ini", "CustomInfo")
+                Dim CustomInfo As String = SetupService.GetString(SetupEntries.Instance.CustomInfo, Path)
                 Info = If(CustomInfo <> "", CustomInfo, GetDefaultDescription())
                 '确定实例收藏状态
-                IsStar = ReadIni(Path & "PCL\Setup.ini", "IsStar", False)
+                IsStar = SetupService.GetBool(SetupEntries.Instance.Starred, Path)
                 '确定实例显示种类
-                DisplayType = ReadIni(Path & "PCL\Setup.ini", "DisplayType", McInstanceCardType.Auto)
+                DisplayType = SetupService.GetInt32(SetupEntries.Instance.DisplayType, Path)
                 '写入缓存
                 If Directory.Exists(Path) Then
-                    WriteIni(Path & "PCL\Setup.ini", "State", State)
-                    WriteIni(Path & "PCL\Setup.ini", "Info", Info)
-                    WriteIni(Path & "PCL\Setup.ini", "Logo", Logo)
+                    SetupService.SetInt32(SetupEntries.Instance.State, State, Path)
+                    SetupService.SetString(SetupEntries.Instance.Info, Info, Path)
+                    SetupService.SetString(SetupEntries.Instance.LogoPath, Logo, Path)
                 End If
                 If State <> McInstanceState.Error Then
                     WriteIni(Path & "PCL\Setup.ini", "ReleaseTime", ReleaseTime.ToString("yyyy'-'MM'-'dd HH':'mm"))
-                    WriteIni(Path & "PCL\Setup.ini", "VersionFabric", Version.FabricVersion)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionLegacyFabric", Version.LegacyFabricVersion)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionQuilt", Version.QuiltVersion)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionLabyMod", Version.LabyModVersion)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionOptiFine", Version.OptiFineVersion)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionLiteLoader", Version.HasLiteLoader)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionForge", Version.ForgeVersion)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionNeoForge", Version.NeoForgeVersion)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionCleanroom", Version.CleanroomVersion)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionApiCode", Version.SortCode)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionOriginal", Version.McName)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionOriginalMain", Version.McCodeMain)
-                    WriteIni(Path & "PCL\Setup.ini", "VersionOriginalSub", Version.McCodeSub)
+                    SetupService.SetString(SetupEntries.Instance.ReleaseTime, ReleaseTime.ToString("yyyy'-'MM'-'dd HH':'mm"), Path)
+                    SetupService.SetString(SetupEntries.Instance.FabricVersion, Version.FabricVersion, Path)
+                    SetupService.SetString(SetupEntries.Instance.LegacyFabricVersion, Version.LegacyFabricVersion, Path)
+                    SetupService.SetString(SetupEntries.Instance.QuiltVersion, Version.QuiltVersion, Path)
+                    SetupService.SetString(SetupEntries.Instance.LabyModVersion, Version.LabyModVersion, Path)
+                    SetupService.SetString(SetupEntries.Instance.OptiFineVersion, Version.OptiFineVersion, Path)
+                    SetupService.SetBool(SetupEntries.Instance.HasLiteLoader, Version.HasLiteLoader, Path)
+                    SetupService.SetString(SetupEntries.Instance.ForgeVersion, Version.ForgeVersion, Path)
+                    SetupService.SetString(SetupEntries.Instance.NeoForgeVersion, Version.NeoForgeVersion, Path)
+                    SetupService.SetString(SetupEntries.Instance.CleanroomVersion, Version.CleanroomVersion, Path)
+                    SetupService.SetInt32(SetupEntries.Instance.SortCode, Version.SortCode, Path)
+                    SetupService.SetString(SetupEntries.Instance.McVersion, Version.McName, Path)
+                    SetupService.SetInt32(SetupEntries.Instance.VersionMajor, Version.McCodeMain, Path)
+                    SetupService.SetInt32(SetupEntries.Instance.VersionMinor, Version.McCodeSub, Path)
                 End If
             Catch ex As Exception
                 Info = "未知错误：" & GetExceptionSummary(ex)
@@ -1328,6 +1330,7 @@ OnLoaded:
                         Dim Instance As New McInstance(VersionFolder)
                         InstanceList.Add(Instance)
                         Instance.Info = ReadIni(Instance.Path & "PCL\Setup.ini", "CustomInfo", "")
+                        
                         If Instance.Info = "" Then Instance.Info = ReadIni(Instance.Path & "PCL\Setup.ini", "Info", Instance.Info)
                         Instance.Logo = ReadIni(Instance.Path & "PCL\Setup.ini", "Logo", Instance.Logo)
                         Instance.ReleaseTime = ReadIni(Instance.Path & "PCL\Setup.ini", "ReleaseTime", Instance.ReleaseTime)

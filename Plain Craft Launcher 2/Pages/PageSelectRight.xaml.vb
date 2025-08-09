@@ -1,4 +1,6 @@
 ﻿Imports System.Windows.Threading
+Imports PCL.Core.ProgramSetup
+
 Public Class PageSelectRight
 
     Private LastInputTime As DateTime = DateTime.MinValue
@@ -290,7 +292,7 @@ Public Class PageSelectRight
             BtnStar.Logo = Logo.IconButtonLikeLine
         End If
         AddHandler BtnStar.Click, Sub()
-                                      WriteIni(Version.Path & "PCL\Setup.ini", "IsStar", Not Version.IsStar)
+                                      SetupService.SetBool(SetupEntries.Instance.Starred, Not Version.IsStar, Version.Path)
                                       McInstanceListForceRefresh = True
                                       LoaderFolderRun(McInstanceListLoader, PathMcFolder, LoaderFolderRunType.ForceRun, MaxDepth:=1, ExtraPath:="versions\")
                                   End Sub
@@ -361,7 +363,6 @@ Public Class PageSelectRight
                         "实例删除确认", , "取消",, True)
                 Case 1
                     IniClearCache(Version.PathIndie & "options.txt")
-                    IniClearCache(Version.Path & "PCL\Setup.ini")
                     If IsShiftPressed Then
                         DeleteDirectory(Version.Path)
                         Hint("实例 " & Version.Name & " 已永久删除！", HintType.Finish)

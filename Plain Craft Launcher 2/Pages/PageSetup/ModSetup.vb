@@ -3,240 +3,6 @@ Imports PCL.Core.Network
 Imports PCL.Core.ProgramSetup
 
 Public Class ModSetup
-
-    ''' <summary>
-    ''' 设置的更新号。
-    ''' </summary>
-    Public Const VersionSetup As Integer = SetupModel.VersionCode
-    ''' <summary>
-    ''' 设置列表。
-    ''' </summary>
-    Private ReadOnly SetupDict As New Dictionary(Of String, SetupEntry) From {
-        {"Identify", New SetupEntry(SetupEntrySource.SystemGlobal, "Identify", "")},
-        {"WindowHeight", New SetupEntry(SetupEntrySource.PathLocal, "WindowHeight", 550)},
-        {"WindowWidth", New SetupEntry(SetupEntrySource.PathLocal, "WindowWidth", 900)},
-        {"HintDownloadThread", New SetupEntry(SetupEntrySource.SystemGlobal, "HintDownloadThread", False)},
-        {"HintNotice", New SetupEntry(SetupEntrySource.SystemGlobal, "HintNotice", 0)},
-        {"HintDownload", New SetupEntry(SetupEntrySource.SystemGlobal, "HintDownload", 0)},
-        {"HintInstallBack", New SetupEntry(SetupEntrySource.SystemGlobal, "HintInstallBack", False)},
-        {"HintHide", New SetupEntry(SetupEntrySource.SystemGlobal, "HintHide", False)},
-        {"HintHandInstall", New SetupEntry(SetupEntrySource.SystemGlobal, "HintHandInstall", False)},
-        {"HintBuy", New SetupEntry(SetupEntrySource.SystemGlobal, "HintBuy", False)},
-        {"HintClearRubbish", New SetupEntry(SetupEntrySource.SystemGlobal, "HintClearRubbish", 0)},
-        {"HintUpdateMod", New SetupEntry(SetupEntrySource.SystemGlobal, "HintUpdateMod", False)},
-        {"HintCustomCommand", New SetupEntry(SetupEntrySource.SystemGlobal, "HintCustomCommand", False)},
-        {"HintCustomWarn", New SetupEntry(SetupEntrySource.SystemGlobal, "HintCustomWarn", False)},
-        {"HintMoreAdvancedSetup", New SetupEntry(SetupEntrySource.SystemGlobal, "HintMoreAdvancedSetup", False)},
-        {"HintIndieSetup", New SetupEntry(SetupEntrySource.SystemGlobal, "HintIndieSetup", False)},
-        {"HintProfileSelect", New SetupEntry(SetupEntrySource.SystemGlobal, "HintProfileSelect", False)},
-        {"HintExportConfig", New SetupEntry(SetupEntrySource.SystemGlobal, "HintExportConfig", False)},
-        {"HintMaxLog", New SetupEntry(SetupEntrySource.SystemGlobal, "HintMaxLog", False)},
-        {"HintDisableGamePathCheckTip", New SetupEntry(SetupEntrySource.SystemGlobal, "HintDisableGamePathCheckTip", False)},
-        {"SystemEula", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemEula", False)},
-        {"SystemCount", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemCount", 0, isEncrypted:=true)},
-        {"SystemLaunchCount", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemLaunchCount", 0, isEncrypted:=True)},
-        {"SystemLastVersionReg", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemLastVersionReg", 0, isEncrypted:=True)},
-        {"SystemHighestSavedBetaVersionReg", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemHighestSavedBetaVersionReg", 0, isEncrypted:=True)},
-        {"SystemHighestBetaVersionReg", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemHighestBetaVersionReg", 0, isEncrypted:=True)},
-        {"SystemHighestAlphaVersionReg", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemHighestAlphaVersionReg", 0, isEncrypted:=True)},
-        {"SystemSetupVersionReg", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemSetupVersionReg", VersionSetup)},
-        {"SystemSetupVersionIni", New SetupEntry(SetupEntrySource.PathLocal, "SystemSetupVersionIni", VersionSetup)},
-        {"SystemDebugMode", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemDebugMode", False)},
-        {"SystemDebugAnim", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemDebugAnim", 9)},
-        {"SystemDebugDelay", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemDebugDelay", False)},
-        {"SystemDebugSkipCopy", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemDebugSkipCopy", False)},
-        {"SystemSystemCache", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemSystemCache", "")},
-        {"SystemSystemUpdate", New SetupEntry(SetupEntrySource.PathLocal, "SystemSystemUpdate", 0)},
-        {"SystemSystemUpdateBranch", New SetupEntry(SetupEntrySource.PathLocal, "SystemSystemUpdateBranch", If(VersionBaseName.Contains("beta"), 1, 0))},
-        {"SystemSystemActivity", New SetupEntry(SetupEntrySource.PathLocal, "SystemSystemActivity", 0)},
-        {"SystemSystemAnnouncement", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemSystemAnnouncement", "")},
-        {"SystemHttpProxy", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemHttpProxy", "", isEncrypted:=True)},
-        {"SystemUseDefaultProxy", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemUseDefaultProxy", True)},
-        {"SystemDisableHardwareAcceleration", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemDisableHardwareAcceleration", False)},
-        {"SystemTelemetry", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemTelemetry", False)},
-        {"SystemMirrorChyanKey", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemMirrorChyanKey", "", isEncrypted:=True)},
-        {"SystemMaxLog", New SetupEntry(SetupEntrySource.SystemGlobal, "SystemMaxLog", 13)},
-        {"CacheExportConfig", New SetupEntry(SetupEntrySource.SystemGlobal, "CacheExportConfig", "")},
-        {"CacheSavedPageUrl", New SetupEntry(SetupEntrySource.SystemGlobal, "CacheSavedPageUrl", "")},
-        {"CacheSavedPageInstance", New SetupEntry(SetupEntrySource.SystemGlobal, "CacheSavedPageInstance", "")},
-        {"CacheDownloadFolder", New SetupEntry(SetupEntrySource.SystemGlobal, "CacheDownloadFolder", "")},
-        {"ToolDownloadCustomUserAgent", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadCustomUserAgent", "")},
-        {"CacheJavaListVersion", New SetupEntry(SetupEntrySource.SystemGlobal, "CacheJavaListVersion", 0)},
-        {"CacheAuthUuid", New SetupEntry(SetupEntrySource.SystemGlobal, "CacheAuthUuid", "", isEncrypted:=True)},
-        {"CacheAuthName", New SetupEntry(SetupEntrySource.SystemGlobal, "CacheAuthName", "", isEncrypted:=True)},
-        {"CacheAuthUsername", New SetupEntry(SetupEntrySource.SystemGlobal, "CacheAuthUsername", "", isEncrypted:=True)},
-        {"CacheAuthPass", New SetupEntry(SetupEntrySource.SystemGlobal, "CacheAuthPass", "", isEncrypted:=True)},
-        {"CacheAuthServerServer", New SetupEntry(SetupEntrySource.SystemGlobal, "CacheAuthServerServer", "", isEncrypted:=True)},
-        {"CompFavorites", New SetupEntry(SetupEntrySource.SystemGlobal, "CompFavorites", "[]")},
-        {"LaunchInstanceSelect", New SetupEntry(SetupEntrySource.PathLocal, "LaunchInstanceSelect", "")},
-        {"LaunchFolderSelect", New SetupEntry(SetupEntrySource.PathLocal, "LaunchFolderSelect", "")},
-        {"LaunchFolders", New SetupEntry(SetupEntrySource.SystemGlobal, "LaunchFolders", "")},
-        {"LaunchArgumentTitle", New SetupEntry(SetupEntrySource.PathLocal, "LaunchArgumentTitle", "")},
-        {"LaunchArgumentInfo", New SetupEntry(SetupEntrySource.PathLocal, "LaunchArgumentInfo", "PCL")},
-        {"LaunchArgumentJavaSelect", New SetupEntry(SetupEntrySource.SystemGlobal, "LaunchArgumentJavaSelect", "")},
-        {"LaunchArgumentJavaUser", New SetupEntry(SetupEntrySource.SystemGlobal, "LaunchArgumentJavaUser", "[]")},
-        {"LaunchArgumentIndie", New SetupEntry(SetupEntrySource.PathLocal, "LaunchArgumentIndie", 0)},
-        {"LaunchArgumentIndieV2", New SetupEntry(SetupEntrySource.PathLocal, "LaunchArgumentIndieV2", 4)},
-        {"LaunchArgumentVisible", New SetupEntry(SetupEntrySource.SystemGlobal, "LaunchArgumentVisible", 5)},
-        {"LaunchArgumentPriority", New SetupEntry(SetupEntrySource.SystemGlobal, "LaunchArgumentPriority", 1)},
-        {"LaunchArgumentWindowWidth", New SetupEntry(SetupEntrySource.PathLocal, "LaunchArgumentWindowWidth", 854)},
-        {"LaunchArgumentWindowHeight", New SetupEntry(SetupEntrySource.PathLocal, "LaunchArgumentWindowHeight", 480)},
-        {"LaunchArgumentWindowType", New SetupEntry(SetupEntrySource.PathLocal, "LaunchArgumentWindowType", 1)},
-        {"LaunchPreferredIpStack", New SetupEntry(SetupEntrySource.SystemGlobal, "LaunchPreferredIpStack", 1)},
-        {"LaunchArgumentRam", New SetupEntry(SetupEntrySource.SystemGlobal, "LaunchArgumentRam", False)},
-        {"LaunchAdvanceJvm", New SetupEntry(SetupEntrySource.PathLocal, "LaunchAdvanceJvm", "-XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -Djdk.lang.Process.allowAmbiguousCommands=true -Dfml.ignoreInvalidMinecraftCertificates=True -Dfml.ignorePatchDiscrepancies=True -Dlog4j2.formatMsgNoLookups=true")},
-        {"LaunchAdvanceGame", New SetupEntry(SetupEntrySource.PathLocal, "LaunchAdvanceGame", "")},
-        {"LaunchAdvanceRun", New SetupEntry(SetupEntrySource.PathLocal, "LaunchAdvanceRun", "")},
-        {"LaunchAdvanceRunWait", New SetupEntry(SetupEntrySource.PathLocal, "LaunchAdvanceRunWait", True)},
-        {"LaunchAdvanceDisableJLW", New SetupEntry(SetupEntrySource.PathLocal, "LaunchAdvanceDisableJLW", False)},
-        {"LaunchAdvanceDisableRW", New SetupEntry(SetupEntrySource.PathLocal, "LaunchAdvanceDisableRW", False)},
-        {"LaunchAdvanceGraphicCard", New SetupEntry(SetupEntrySource.SystemGlobal, "LaunchAdvanceGraphicCard", True)},
-        {"LaunchAdvanceNoJavaw", New SetupEntry(SetupEntrySource.SystemGlobal, "LaunchAdvanceNoJavaw", False)},
-        {"LaunchRamType", New SetupEntry(SetupEntrySource.PathLocal, "LaunchRamType", 0)},
-        {"LaunchRamCustom", New SetupEntry(SetupEntrySource.PathLocal, "LaunchRamCustom", 15)},
-        {"LaunchUuid", New SetupEntry(SetupEntrySource.SystemGlobal, "LaunchUuid", String.Empty)},
-        {"ToolFixAuthlib", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolFixAuthlib", True)},
-        {"LinkEula", New SetupEntry(SetupEntrySource.SystemGlobal, "LinkEula", False)},
-        {"LinkAnnounceCache", New SetupEntry(SetupEntrySource.SystemGlobal, "LinkAnnounceCache", "", isEncrypted:=True)},
-        {"LinkAnnounceCacheVer", New SetupEntry(SetupEntrySource.SystemGlobal, "LinkAnnounceCacheVer", 0)},
-        {"LinkRelayType", New SetupEntry(SetupEntrySource.SystemGlobal, "LinkRelayType", 0)},
-        {"LinkServerType", New SetupEntry(SetupEntrySource.SystemGlobal, "LinkServerType", 1)},
-        {"LinkProxyType", New SetupEntry(SetupEntrySource.SystemGlobal, "LinkProxyType", 1)},
-        {"LinkRelayServer", New SetupEntry(SetupEntrySource.SystemGlobal, "LinkRelayServer", "")},
-        {"LinkNaidRefreshToken", New SetupEntry(SetupEntrySource.SystemGlobal, "LinkNaidRefreshToken", "", isEncrypted:=True)},
-        {"LinkNaidRefreshExpiresAt", New SetupEntry(SetupEntrySource.SystemGlobal, "LinkNaidRefreshExpiresAt", "", isEncrypted:=True)},
-        {"LinkFirstTimeNetTest", New SetupEntry(SetupEntrySource.SystemGlobal, "LinkFirstTimeNetTest", True)},
-        {"LoginLegacyName", New SetupEntry(SetupEntrySource.SystemGlobal, "LoginLegacyName", "", isEncrypted:=True)},
-        {"LoginMsJson", New SetupEntry(SetupEntrySource.SystemGlobal, "LoginMsJson", "{}", isEncrypted:=True)}, '{UserName: OAuthToken, ...}
-        {"LoginMsAuthType", New SetupEntry(SetupEntrySource.SystemGlobal, "LoginMsAuthType", 1)},
-        {"ToolHelpChinese", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolHelpChinese", True)},
-        {"ToolDownloadThread", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadThread", 63)},
-        {"ToolDownloadSpeed", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadSpeed", 42)},
-        {"ToolDownloadSource", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadSource", 1)},
-        {"ToolDownloadVersion", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadVersion", 1)},
-        {"ToolDownloadTranslate", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadTranslate", 0)},
-        {"ToolDownloadTranslateV2", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadTranslateV2", 1)},
-        {"ToolDownloadIgnoreQuilt", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadIgnoreQuilt", True)},
-        {"ToolDownloadClipboard", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadClipboard", False)},
-        {"ToolDownloadCert", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadCert", True)},
-        {"ToolDownloadMod", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadMod", 1)},
-        {"ToolModLocalNameStyle", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolModLocalNameStyle", 0)},
-        {"ToolUpdateAlpha", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolUpdateAlpha", 0, isEncrypted:=True)},
-        {"ToolUpdateRelease", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolUpdateRelease", False)},
-        {"ToolUpdateSnapshot", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolUpdateSnapshot", False)},
-        {"ToolUpdateReleaseLast", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolUpdateReleaseLast", "")},
-        {"ToolUpdateSnapshotLast", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolUpdateSnapshotLast", "")},
-        {"ToolDownloadAutoSelectVersion", New SetupEntry(SetupEntrySource.SystemGlobal, "ToolDownloadAutoSelectVersion", True)},
-        {"UiLauncherTransparent", New SetupEntry(SetupEntrySource.PathLocal, "UiLauncherTransparent", 600)}, '避免与 PCL1 设置冲突（UiLauncherOpacity）
-        {"UiLauncherHue", New SetupEntry(SetupEntrySource.PathLocal, "UiLauncherHue", 180)},
-        {"UiLauncherSat", New SetupEntry(SetupEntrySource.PathLocal, "UiLauncherSat", 80)},
-        {"UiLauncherDelta", New SetupEntry(SetupEntrySource.PathLocal, "UiLauncherDelta", 90)},
-        {"UiLauncherLight", New SetupEntry(SetupEntrySource.PathLocal, "UiLauncherLight", 20)},
-        {"UiLauncherTheme", New SetupEntry(SetupEntrySource.PathLocal, "UiLauncherTheme", 0)},
-        {"UiLauncherThemeGold", New SetupEntry(SetupEntrySource.SystemGlobal, "UiLauncherThemeGold", "", isEncrypted:=True)},
-        {"UiLauncherThemeHide", New SetupEntry(SetupEntrySource.SystemGlobal, "UiLauncherThemeHide", "0|1|2|3|4", isEncrypted:=True)},
-        {"UiLauncherThemeHide2", New SetupEntry(SetupEntrySource.SystemGlobal, "UiLauncherThemeHide2", "0|1|2|3|4", isEncrypted:=True)},
-        {"UiLauncherLogo", New SetupEntry(SetupEntrySource.PathLocal, "UiLauncherLogo", True)},
-        {"UiLauncherCEHint", New SetupEntry(SetupEntrySource.SystemGlobal, "UiLauncherCEHint", True)},
-        {"UiLauncherCEHintCount", New SetupEntry(SetupEntrySource.SystemGlobal, "UiLauncherCEHintCount", 0)},
-        {"UiBlur", New SetupEntry(SetupEntrySource.PathLocal, "UiBlur", False)},
-        {"UiBlurValue", New SetupEntry(SetupEntrySource.PathLocal, "UiBlurValue", 16)},
-        {"UiBackgroundColorful", New SetupEntry(SetupEntrySource.PathLocal, "UiBackgroundColorful", True)},
-        {"UiBackgroundOpacity", New SetupEntry(SetupEntrySource.PathLocal, "UiBackgroundOpacity", 1000)},
-        {"UiBackgroundBlur", New SetupEntry(SetupEntrySource.PathLocal, "UiBackgroundBlur", 0)},
-        {"UiBackgroundSuit", New SetupEntry(SetupEntrySource.PathLocal, "UiBackgroundSuit", 0)},
-        {"UiCustomType", New SetupEntry(SetupEntrySource.PathLocal, "UiCustomType", 0)},
-        {"UiCustomPreset", New SetupEntry(SetupEntrySource.PathLocal, "UiCustomPreset", 0)},
-        {"UiCustomNet", New SetupEntry(SetupEntrySource.PathLocal, "UiCustomNet", "")},
-        {"UiDarkMode", New SetupEntry(SetupEntrySource.SystemGlobal, "UiDarkMode", 2)},
-        {"UiDarkColor", New SetupEntry(SetupEntrySource.SystemGlobal, "UiDarkColor", 1)},
-        {"UiLightColor", New SetupEntry(SetupEntrySource.SystemGlobal, "UiLightColor", 1)},
-        {"UiLockWindowSize", New SetupEntry(SetupEntrySource.SystemGlobal, "UiLockWindowSize", False)},
-        {"UiLogoType", New SetupEntry(SetupEntrySource.PathLocal, "UiLogoType", 1)},
-        {"UiLogoText", New SetupEntry(SetupEntrySource.PathLocal, "UiLogoText", "")},
-        {"UiLogoLeft", New SetupEntry(SetupEntrySource.PathLocal, "UiLogoLeft", False)},
-        {"UiMusicVolume", New SetupEntry(SetupEntrySource.PathLocal, "UiMusicVolume", 500)},
-        {"UiMusicStop", New SetupEntry(SetupEntrySource.PathLocal, "UiMusicStop", False)},
-        {"UiMusicStart", New SetupEntry(SetupEntrySource.PathLocal, "UiMusicStart", False)},
-        {"UiMusicRandom", New SetupEntry(SetupEntrySource.PathLocal, "UiMusicRandom", True)},
-        {"UiMusicSMTC", New SetupEntry(SetupEntrySource.PathLocal, "UiMusicSMTC", True)},
-        {"UiMusicAuto", New SetupEntry(SetupEntrySource.PathLocal, "UiMusicAuto", True)},
-        {"UiHiddenPageDownload", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenPageDownload", False)},
-        {"UiHiddenPageLink", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenPageLink", False)},
-        {"UiHiddenPageSetup", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenPageSetup", False)},
-        {"UiHiddenPageOther", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenPageOther", False)},
-        {"UiHiddenFunctionSelect", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenFunctionSelect", False)},
-        {"UiHiddenFunctionModUpdate", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenFunctionModUpdate", False)},
-        {"UiHiddenFunctionHidden", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenFunctionHidden", False)},
-        {"UiHiddenSetupLaunch", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenSetupLaunch", False)},
-        {"UiHiddenSetupUi", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenSetupUi", False)},
-        {"UiHiddenSetupSystem", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenSetupSystem", False)},
-        {"UiHiddenOtherHelp", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenOtherHelp", False)},
-        {"UiHiddenOtherFeedback", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenOtherFeedback", False)},
-        {"UiHiddenOtherVote", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenOtherVote", False)},
-        {"UiHiddenOtherAbout", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenOtherAbout", False)},
-        {"UiHiddenOtherTest", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenOtherTest", False)},
-        {"UiHiddenVersionEdit", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenVersionEdit", False)},
-        {"UiHiddenVersionExport", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenVersionExport", False)},
-        {"UiHiddenVersionSave", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenVersionSave", False)},
-        {"UiHiddenVersionScreenshot", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenVersionScreenshot", False)},
-        {"UiHiddenVersionMod", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenVersionMod", False)},
-        {"UiHiddenVersionResourcePack", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenVersionResourcePack", False)},
-        {"UiHiddenVersionShader", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenVersionShader", False)},
-        {"UiHiddenVersionSchematic", New SetupEntry(SetupEntrySource.PathLocal, "UiHiddenVersionSchematic", False)},
-        {"UiSchematicFirstTimeHintShown", New SetupEntry(SetupEntrySource.SystemGlobal, "UiSchematicFirstTimeHintShown", False)},
-        {"UiAniFPS", New SetupEntry(SetupEntrySource.SystemGlobal, "UiAniFPS", 59)},
-        {"UiFont", New SetupEntry(SetupEntrySource.PathLocal, "UiFont", "")},
-        {"VersionAdvanceJvm", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceJvm", "")},
-        {"VersionAdvanceGame", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceGame", "")},
-        {"VersionAdvanceAssets", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceAssets", 0)},
-        {"VersionAdvanceAssetsV2", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceAssetsV2", False)},
-        {"VersionAdvanceJava", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceJava", False)},
-        {"VersionAdvanceDisableJlw", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceDisableJlw", False)},
-        {"VersionAdvanceRun", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceRun", "")},
-        {"VersionAdvanceRunWait", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceRunWait", True)},
-        {"VersionAdvanceDisableJLW", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceDisableJLW", False)},
-        {"VersionAdvanceUseProxyV2", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceUseProxyV2", False)},
-        {"VersionAdvanceDisableRW", New SetupEntry(SetupEntrySource.GameInstance, "VersionAdvanceDisableRW", False)},
-        {"VersionRamType", New SetupEntry(SetupEntrySource.GameInstance, "VersionRamType", 2)},
-        {"VersionRamCustom", New SetupEntry(SetupEntrySource.GameInstance, "VersionRamCustom", 15)},
-        {"VersionRamOptimize", New SetupEntry(SetupEntrySource.GameInstance, "VersionRamOptimize", 0)},
-        {"VersionArgumentTitle", New SetupEntry(SetupEntrySource.GameInstance, "VersionArgumentTitle", "")},
-        {"VersionArgumentTitleEmpty", New SetupEntry(SetupEntrySource.GameInstance, "VersionArgumentTitleEmpty", False)},
-        {"VersionArgumentInfo", New SetupEntry(SetupEntrySource.GameInstance, "VersionArgumentInfo", "")},
-        {"VersionArgumentIndie", New SetupEntry(SetupEntrySource.GameInstance, "VersionArgumentIndie", -1)},
-        {"VersionArgumentIndieV2", New SetupEntry(SetupEntrySource.GameInstance, "VersionArgumentIndieV2", False)},
-        {"VersionArgumentJavaSelect", New SetupEntry(SetupEntrySource.GameInstance, "VersionArgumentJavaSelect", "使用全局设置")},
-        {"VersionServerEnter", New SetupEntry(SetupEntrySource.GameInstance, "VersionServerEnter", "")},
-        {"VersionServerLoginRequire", New SetupEntry(SetupEntrySource.GameInstance, "VersionServerLoginRequire", 0)},
-        {"VersionServerAuthRegister", New SetupEntry(SetupEntrySource.GameInstance, "VersionServerAuthRegister", "")},
-        {"VersionServerAuthName", New SetupEntry(SetupEntrySource.GameInstance, "VersionServerAuthName", "")},
-        {"VersionServerAuthServer", New SetupEntry(SetupEntrySource.GameInstance, "VersionServerAuthServer", "")},
-        {"VersionServerLoginLock", New SetupEntry(SetupEntrySource.GameInstance, "VersionServerLoginLock", False)},
-        {"VersionLaunchCount", New SetupEntry(SetupEntrySource.GameInstance, "VersionLaunchCount", 0)},
-        {"IsStar", new SetupEntry(SetupEntrySource.GameInstance, "IsStar", False)},
-        {"DisplayType", new SetupEntry(SetupEntrySource.GameInstance, "DisplayType", 0)},
-        {"Logo", new SetupEntry(SetupEntrySource.GameInstance, "Logo", "")},
-        {"LogoCustom", new SetupEntry(SetupEntrySource.GameInstance, "LogoCustom", False)},
-        {"CustomInfo", new SetupEntry(SetupEntrySource.GameInstance, "CustomInfo", "")},
-        {"Info", new SetupEntry(SetupEntrySource.GameInstance, "Info", "")},
-        {"ReleaseTime", new SetupEntry(SetupEntrySource.GameInstance, "ReleaseTime", "")},
-        {"State", new SetupEntry(SetupEntrySource.GameInstance, "State", 0)},
-        {"VersionFabric", new SetupEntry(SetupEntrySource.GameInstance, "VersionFabric", "")},
-        {"VersionLegacyFabric", new SetupEntry(SetupEntrySource.GameInstance, "VersionLegacyFabric", "")},
-        {"VersionQuilt", new SetupEntry(SetupEntrySource.GameInstance, "VersionQuilt", "")},
-        {"VersionLabyMod", new SetupEntry(SetupEntrySource.GameInstance, "VersionLabyMod", "")},
-        {"VersionOptiFine", new SetupEntry(SetupEntrySource.GameInstance, "VersionOptiFine", "")},
-        {"VersionLiteLoader", new SetupEntry(SetupEntrySource.GameInstance, "VersionLiteLoader", "")},
-        {"VersionForge", new SetupEntry(SetupEntrySource.GameInstance, "VersionForge", "")},
-        {"VersionNeoForge", new SetupEntry(SetupEntrySource.GameInstance, "VersionNeoForge", "")},
-        {"VersionCleanroom", new SetupEntry(SetupEntrySource.GameInstance, "VersionCleanroom", "")},
-        {"VersionApiCode", new SetupEntry(SetupEntrySource.GameInstance, "VersionApiCode", 0)},
-        {"VersionOriginal", new SetupEntry(SetupEntrySource.GameInstance, "VersionOriginal", "")},
-        {"VersionOriginalMain", new SetupEntry(SetupEntrySource.GameInstance, "VersionOriginalMain", 0)},
-        {"VersionOriginalSub", new SetupEntry(SetupEntrySource.GameInstance, "VersionOriginalSub", 0)}
-    }
-
 #Region "基础"
 
     Public Sub New()
@@ -252,7 +18,7 @@ Public Class ModSetup
     ''' 改变某个设置项的值。
     ''' </summary>
     Public Sub [Set](key As String, value As Object, Optional forceReload As Boolean = False, Optional instance As McInstance = Nothing)
-        Dim entry As SetupEntry = SetupDict(key)
+        Dim entry As SetupEntry = SetupEntries.ForKeyName(key)
         Dim type As Type = entry.DefaultValue.GetType()
         If type = GetType(Boolean) Then
             SetupService.SetBool(entry, value, instance?.Path)
@@ -269,7 +35,7 @@ Public Class ModSetup
     ''' 应用某个设置项的值。
     ''' </summary>
     Public Function Load(key As String, Optional forceReload As Boolean = False, Optional instance As McInstance = Nothing)
-        Dim entry As SetupEntry = SetupDict(key)
+        Dim entry As SetupEntry = SetupEntries.ForKeyName(key)
         Dim type As Type = entry.DefaultValue.GetType()
         Dim value
         If type = GetType(Boolean) Then 
@@ -281,9 +47,7 @@ Public Class ModSetup
         Else
             Throw New NotSupportedException("请让开发者完善配置系统迁移……")
         End If
-#disable Warning BC40000 ' Obsolete
-        SetupService.RaiseSetupChanged(SetupDict(key), value, value, instance?.Path)
-#enable Warning BC40000
+        SetupService.RaiseSetupChanged(SetupEntries.ForKeyName(key), value, value, instance?.Path)
         Return value
     End Function
 
@@ -291,7 +55,7 @@ Public Class ModSetup
     ''' 获取某个设置项的值。
     ''' </summary>
     Public Function [Get](key As String, Optional instance As McInstance = Nothing)
-        Dim entry As SetupEntry = SetupDict(key)
+        Dim entry As SetupEntry = SetupEntries.ForKeyName(key)
         Dim type As Type = entry.DefaultValue.GetType()
         If type = GetType(Boolean) Then 
             Return SetupService.GetBool(entry, instance?.Path)
@@ -308,7 +72,7 @@ Public Class ModSetup
     ''' 初始化某个设置项的值。
     ''' </summary>
     Public Sub Reset(key As String, Optional forceReload As Boolean = False, Optional instance As McInstance = Nothing)
-        Dim entry As SetupEntry = SetupDict(key)
+        Dim entry As SetupEntry = SetupEntries.ForKeyName(key)
         Dim type As Type = entry.DefaultValue.GetType()
         If type = GetType(Boolean) Then 
             SetupService.DeleteBool(entry, instance?.Path)
@@ -325,7 +89,7 @@ Public Class ModSetup
     ''' 获取某个设置项的默认值。
     ''' </summary>
     Public Function GetDefault(key As String)
-        Dim entry As SetupEntry = SetupDict(key)
+        Dim entry As SetupEntry = SetupEntries.ForKeyName(key)
         Return entry.DefaultValue
     End Function
 
@@ -333,7 +97,7 @@ Public Class ModSetup
     ''' 某个设置项是否从未被设置过。
     ''' </summary>
     Public Function IsUnset(key As String, Optional instance As McInstance = Nothing) As Boolean
-        Dim entry As SetupEntry = SetupDict(key)
+        Dim entry As SetupEntry = SetupEntries.ForKeyName(key)
         Return SetupService.IsUnset(entry, instance?.Path)
     End Function
 

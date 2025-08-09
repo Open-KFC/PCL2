@@ -1,4 +1,6 @@
-﻿Public Class PageInstanceOverall
+﻿Imports PCL.Core.ProgramSetup
+
+Public Class PageInstanceOverall
 
     Private IsLoad As Boolean = False
     Private Sub PageSetupLaunch_Loaded(sender As Object, e As RoutedEventArgs) Handles Me.Loaded
@@ -25,7 +27,7 @@
         AniControlEnabled += 1
 
         '刷新设置项目
-        ComboDisplayType.SelectedIndex = ReadIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "DisplayType", McInstanceCardType.Auto)
+        ComboDisplayType.SelectedIndex = SetupService.GetInt32(SetupEntries.Instance.DisplayType, PageInstanceLeft.Instance.Path)
         BtnDisplayStar.Text = If(PageInstanceLeft.Instance.IsStar, "从收藏夹中移除", "加入收藏夹")
         BtnFolderMods.Visibility = If(PageInstanceLeft.Instance.Modable, Visibility.Visible, Visibility.Collapsed)
         '刷新实例显示
@@ -36,8 +38,8 @@
         FrmMain.PageNameRefresh()
         '刷新实例图标
         ComboDisplayLogo.SelectedIndex = 0
-        Dim Logo As String = ReadIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "Logo", "")
-        Dim LogoCustom As Boolean = ReadIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "LogoCustom", "False")
+        Dim Logo As String = SetupService.GetString(SetupEntries.Instance.LogoPath, PageInstanceLeft.Instance.Path)
+        Dim LogoCustom As Boolean = SetupService.GetBool(SetupEntries.Instance.IsLogoCustom, PageInstanceLeft.Instance.Path)
         If LogoCustom Then
             For Each Selection As MyComboBoxItem In ComboDisplayLogo.Items
                 If Selection.Tag = Logo OrElse (Selection.Tag = "PCL\Logo.png" AndAlso Logo.EndsWith("PCL\Logo.png")) Then
@@ -59,8 +61,8 @@
             '改为不隐藏
             Try
                 '若设置分类为可安装 Mod，则显示正常的 Mod 管理页面
-                WriteIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "DisplayType", ComboDisplayType.SelectedIndex)
-                PageInstanceLeft.Instance.DisplayType = ReadIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "DisplayType", McInstanceCardType.Auto)
+                SetupService.SetInt32(SetupEntries.Instance.DisplayType, ComboDisplayType.SelectedIndex, PageInstanceLeft.Instance.Path)
+                PageInstanceLeft.Instance.DisplayType = SetupService.GetInt32(SetupEntries.Instance.DisplayType, PageInstanceLeft.Instance.Path)
                 FrmInstanceLeft.RefreshModDisabled()
 
                 WriteIni(PathMcFolder & "PCL.ini", "InstanceCache", "") '要求刷新缓存
@@ -79,7 +81,8 @@
                     End If
                     Setup.Set("HintHide", True)
                 End If
-                WriteIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "DisplayType", McInstanceCardType.Hidden)
+                ' TODO: 测测能不能这么写转换
+                SetupService.SetInt32(SetupEntries.Instance.DisplayType, McInstanceCardType.Hidden, PageInstanceLeft.Instance.Path)
                 WriteIni(PathMcFolder & "PCL.ini", "InstanceCache", "") '要求刷新缓存
                 LoaderFolderRun(McInstanceListLoader, PathMcFolder, LoaderFolderRunType.ForceRun, MaxDepth:=1, ExtraPath:="versions\")
             Catch ex As Exception
@@ -91,9 +94,9 @@
     '更改描述
     Private Sub BtnDisplayDesc_Click(sender As Object, e As EventArgs) Handles BtnDisplayDesc.Click
         Try
-            Dim OldInfo As String = ReadIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "CustomInfo")
+            Dim OldInfo As String = SetupService.GetString(SetupEntries.Instance.CustomInfo, PageInstanceLeft.Instance.Path)
             Dim NewInfo As String = MyMsgBoxInput("更改描述", "修改实例的描述文本，留空则使用 PCL 的默认描述。", OldInfo, New ObjectModel.Collection(Of Validate), "默认描述")
-            If NewInfo IsNot Nothing AndAlso OldInfo <> NewInfo Then WriteIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "CustomInfo", NewInfo)
+            If NewInfo IsNot Nothing AndAlso OldInfo <> NewInfo Then SetupService.SetString(SetupEntries.Instance.CustomInfo, NewInfo, PageInstanceLeft.Instance.Path)
             PageInstanceLeft.Instance = New McInstance(PageInstanceLeft.Instance.Name).Load()
             Reload()
             LoaderFolderRun(McInstanceListLoader, PathMcFolder, LoaderFolderRunType.ForceRun, MaxDepth:=1, ExtraPath:="versions\")
@@ -129,7 +132,6 @@
             My.Computer.FileSystem.RenameDirectory(TempPath, NewName)
             '清理 ini 缓存
             IniClearCache(PageInstanceLeft.Instance.PathIndie & "options.txt")
-            IniClearCache(PageInstanceLeft.Instance.Path & "PCL\Setup.ini")
             '重命名 Jar 文件与 natives 文件夹
             '不能进行遍历重命名，否则在实例名很短的时候容易误伤其他文件（Meloong-Git/#6443）
             If Directory.Exists($"{NewPath}{OldName}-natives") Then
@@ -197,8 +199,8 @@
         '进行更改
         Try
             Dim NewLogo As String = ComboDisplayLogo.SelectedItem.Tag
-            WriteIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "Logo", NewLogo)
-            WriteIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "LogoCustom", Not NewLogo = "")
+            SetupService.SetString(SetupEntries.Instance.LogoPath, NewLogo, PageInstanceLeft.Instance.Path)
+            SetupService.SetBool(SetupEntries.Instance.IsLogoCustom, Not NewLogo = "", PageInstanceLeft.Instance.Path)
             '刷新显示
             WriteIni(PathMcFolder & "PCL.ini", "InstanceCache", "") '要求刷新缓存
             PageInstanceLeft.Instance = New McInstance(PageInstanceLeft.Instance.Name).Load()
@@ -212,7 +214,7 @@
     '收藏夹
     Private Sub BtnDisplayStar_Click(sender As Object, e As EventArgs) Handles BtnDisplayStar.Click
         Try
-            WriteIni(PageInstanceLeft.Instance.Path & "PCL\Setup.ini", "IsStar", Not PageInstanceLeft.Instance.IsStar)
+            SetupService.SetBool(SetupEntries.Instance.Starred, Not PageInstanceLeft.Instance.IsStar, PageInstanceLeft.Instance.Path)
             PageInstanceLeft.Instance = New McInstance(PageInstanceLeft.Instance.Name).Load()
             Reload()
             McInstanceListForceRefresh = True
@@ -377,7 +379,6 @@
                         "实例删除确认", , "取消",, IsHintIndie OrElse IsShiftPressed)
                 Case 1
                     IniClearCache(PageInstanceLeft.Instance.PathIndie & "options.txt")
-                    IniClearCache(PageInstanceLeft.Instance.Path & "PCL\Setup.ini")
                     If IsShiftPressed Then
                         DeleteDirectory(PageInstanceLeft.Instance.Path)
                         Hint("实例 " & PageInstanceLeft.Instance.Name & " 已永久删除！", HintType.Finish)
