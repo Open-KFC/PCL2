@@ -1,5 +1,5 @@
 Imports System.Reflection
-Imports PCL.Core.Network
+Imports PCL.Core.Net
 Imports PCL.Core.ProgramSetup
 
 Public Class ModSetup
