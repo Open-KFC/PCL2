@@ -1,5 +1,6 @@
 ﻿Imports System.IO.Compression
 Imports PCL.Core.ProgramSetup
+Imports NEWSetup = PCL.Core.ProgramSetup.Setup
 
 Public Module ModModpack
 
@@ -344,8 +345,8 @@ Retry:
             Dim VersionFolder As String = $"{PathMcFolder}versions\{InstanceName}\"
             If Logo IsNot Nothing AndAlso File.Exists(Logo) Then
                 File.Copy(Logo, VersionFolder & "PCL\Logo.png", True)
-                SetupService.SetString(SetupEntries.Instance.LogoPath, "PCL\Logo.png", VersionFolder)
-                SetupService.SetBool(SetupEntries.Instance.IsLogoCustom, True, VersionFolder)
+                NEWSetup.Instance.LogoPath(VersionFolder) = "PCL\Logo.png"
+                NEWSetup.Instance.IsLogoCustom(VersionFolder) = True
                 Log("[ModPack] 已设置整合包 Logo：" & Logo)
             End If
             '删除原始整合包文件
@@ -490,8 +491,8 @@ Retry:
             Dim VersionFolder As String = $"{PathMcFolder}versions\{InstanceName}\"
             If Logo IsNot Nothing AndAlso File.Exists(Logo) Then
                 File.Copy(Logo, VersionFolder & "PCL\Logo.png", True)
-                SetupService.SetString(SetupEntries.Instance.LogoPath, "PCL\Logo.png", VersionFolder)
-                SetupService.SetBool(SetupEntries.Instance.IsLogoCustom, True, VersionFolder)
+                NEWSetup.Instance.LogoPath(VersionFolder) = "PCL\Logo.png"
+                NEWSetup.Instance.IsLogoCustom(VersionFolder) = True
                 Log("[ModPack] 已设置整合包 Logo：" & Logo)
             End If
             '删除原始整合包文件
@@ -785,7 +786,7 @@ Retry:
         If String.IsNullOrEmpty(InstanceName) Then Throw New CancelledException
         '解压
         Dim InstallTemp As String = RequestTaskTempFolder()
-        Dim SetupFile As String = $"{PathMcFolder}versions\{InstanceName}"
+        Dim VersionFolder As String = $"{PathMcFolder}versions\{InstanceName}"
         Dim InstallLoaders As New List(Of LoaderBase)
         InstallLoaders.Add(New LoaderTask(Of String, Integer)("解压整合包文件",
         Sub(Task As LoaderTask(Of String, Integer))
@@ -820,23 +821,23 @@ Retry:
                                 Replace("$INST_MC_DIR\", "{minecraft}").Replace("$INST_MC_DIR", "{minecraft}").
                                 Replace("$INST_DIR\", "{verpath}").Replace("$INST_DIR", "{verpath}").
                                 Replace("$INST_ID", "{name}").Replace("$INST_NAME", "{name}")
-                            SetupService.SetString(SetupEntries.Instance.PreLaunchCommand, PreLaunchCommand, SetupFile)
+                            NEWSetup.Instance.PreLaunchCommand(VersionFolder) = PreLaunchCommand
                             Log("[ModPack] 迁移 MultiMC 实例独立设置：启动前执行命令：" & PreLaunchCommand)
                         End If
                     End If
                     If ReadIni(MMCSetupFile, "JoinServerOnLaunch", False) Then
                         Dim ServerAddress As String = ReadIni(MMCSetupFile, "JoinServerOnLaunchAddress").Replace("\""", """")
-                        SetupService.SetString(SetupEntries.Instance.ServerToEnter, ServerAddress, SetupFile)
+                        NEWSetup.Instance.ServerToEnter(VersionFolder) = ServerAddress
                         Log("[ModPack] 迁移 MultiMC 实例独立设置：自动进入服务器：" & ServerAddress)
                     End If
                     If ReadIni(MMCSetupFile, "IgnoreJavaCompatibility", False) Then
-                        SetupService.SetBool(SetupEntries.Instance.IgnoreJavaCompatibility, True, SetupFile)
+                        NEWSetup.Instance.IgnoreJavaCompatibility(VersionFolder) = True
                         Log("[ModPack] 迁移 MultiMC 实例独立设置：忽略 Java 兼容性警告")
                     End If
                     Dim Logo As String = ReadIni(MMCSetupFile, "iconKey", "")
                     If Logo <> "" AndAlso File.Exists($"{InstallTemp}{ArchiveBaseFolder}{Logo}.png") Then
-                        SetupService.SetBool(SetupEntries.Instance.IsLogoCustom, true, SetupFile)
-                        SetupService.SetString(SetupEntries.Instance.LogoPath, "PCL\Logo.png", SetupFile)
+                        NEWSetup.Instance.IsLogoCustom(VersionFolder) = True
+                        NEWSetup.Instance.LogoPath(VersionFolder) = "PCL\Logo.png"
                         CopyFile($"{InstallTemp}{ArchiveBaseFolder}{Logo}.png", $"{PathMcFolder}versions\{InstanceName}\PCL\Logo.png")
                         Log($"[ModPack] 迁移 MultiMC 实例独立设置：实例图标（{Logo}.png）")
                     End If
@@ -844,11 +845,11 @@ Retry:
                     Dim JvmArgs As String = ReadIni(MMCSetupFile, "JvmArgs", "")
                     If JvmArgs <> "" Then
                         If ReadIni(MMCSetupFile, "OverrideJavaArgs", False) Then
-                            SetupService.SetString(SetupEntries.Instance.JvmArgs, JvmArgs, SetupFile)
+                            NEWSetup.Instance.JvmArgs(VersionFolder) = JvmArgs
                             Log("[ModPack] 迁移 MultiMC 实例独立设置：JVM 参数（覆盖）：" & JvmArgs)
                         Else
                             JvmArgs += " " & Setup.Get("LaunchAdvanceJvm")
-                            SetupService.SetString(SetupEntries.Instance.JvmArgs, JvmArgs, SetupFile)
+                            NEWSetup.Instance.JvmArgs(VersionFolder) = JvmArgs
                             Log("[ModPack] 迁移 MultiMC 实例独立设置：JVM 参数（追加）：" & JvmArgs)
                         End If
                     End If
@@ -928,7 +929,7 @@ Retry:
         End If
         '解压
         Dim InstallTemp As String = RequestTaskTempFolder()
-        Dim SetupFile As String = $"{PathMcFolder}versions\{InstanceName}"
+        Dim VersionFolder As String = $"{PathMcFolder}versions\{InstanceName}"
         Dim InstallLoaders As New List(Of LoaderBase)
         InstallLoaders.Add(New LoaderTask(Of String, Integer)("解压整合包文件",
         Sub(Task As LoaderTask(Of String, Integer))
@@ -940,8 +941,8 @@ Retry:
             'JVM 参数
             If Json("launchInfo") IsNot Nothing Then
                 Dim LaunchInfo As JObject = Json("launchInfo")
-                If LaunchInfo.ContainsKey("javaArgument") Then SetupService.SetString(SetupEntries.Instance.JvmArgs, String.Join(" ", LaunchInfo("javaArgument")), SetupFile)
-                If LaunchInfo.ContainsKey("launchArgument") Then SetupService.SetString(SetupEntries.Instance.GameArgs, String.Join(" ", LaunchInfo("launchArgument")), SetupFile)
+                NEWSetup.Instance.JvmArgs(VersionFolder) = String.Join(" ", LaunchInfo("javaArgument"))
+                NEWSetup.Instance.GameArgs(VersionFolder) = String.Join(" ", LaunchInfo("launchArgument"))
             End If
         End Sub) With {.ProgressWeight = New FileInfo(FileAddress).Length / 1024 / 1024 / 6, .Block = False}) '每 6M 需要 1s
         '构造加载器

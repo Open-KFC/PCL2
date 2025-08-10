@@ -1,4 +1,5 @@
 ﻿Imports PCL.Core.ProgramSetup
+Imports NEWSetup = PCL.Core.ProgramSetup.Setup
 
 Public Class PageInstanceOverall
 
@@ -27,7 +28,7 @@ Public Class PageInstanceOverall
         AniControlEnabled += 1
 
         '刷新设置项目
-        ComboDisplayType.SelectedIndex = SetupService.GetInt32(SetupEntries.Instance.DisplayType, PageInstanceLeft.Instance.Path)
+        ComboDisplayType.SelectedIndex = NEWSetup.Instance.DisplayType(PageInstanceLeft.Instance.Path)
         BtnDisplayStar.Text = If(PageInstanceLeft.Instance.IsStar, "从收藏夹中移除", "加入收藏夹")
         BtnFolderMods.Visibility = If(PageInstanceLeft.Instance.Modable, Visibility.Visible, Visibility.Collapsed)
         '刷新实例显示
@@ -38,8 +39,8 @@ Public Class PageInstanceOverall
         FrmMain.PageNameRefresh()
         '刷新实例图标
         ComboDisplayLogo.SelectedIndex = 0
-        Dim Logo As String = SetupService.GetString(SetupEntries.Instance.LogoPath, PageInstanceLeft.Instance.Path)
-        Dim LogoCustom As Boolean = SetupService.GetBool(SetupEntries.Instance.IsLogoCustom, PageInstanceLeft.Instance.Path)
+        Dim Logo As String = NEWSetup.Instance.LogoPath(PageInstanceLeft.Instance.Path)
+        Dim LogoCustom As Boolean = NEWSetup.Instance.IsLogoCustom(PageInstanceLeft.Instance.Path)
         If LogoCustom Then
             For Each Selection As MyComboBoxItem In ComboDisplayLogo.Items
                 If Selection.Tag = Logo OrElse (Selection.Tag = "PCL\Logo.png" AndAlso Logo.EndsWith("PCL\Logo.png")) Then
@@ -61,8 +62,8 @@ Public Class PageInstanceOverall
             '改为不隐藏
             Try
                 '若设置分类为可安装 Mod，则显示正常的 Mod 管理页面
-                SetupService.SetInt32(SetupEntries.Instance.DisplayType, ComboDisplayType.SelectedIndex, PageInstanceLeft.Instance.Path)
-                PageInstanceLeft.Instance.DisplayType = SetupService.GetInt32(SetupEntries.Instance.DisplayType, PageInstanceLeft.Instance.Path)
+                NEWSetup.Instance.DisplayType(PageInstanceLeft.Instance.Path) = ComboDisplayType.SelectedIndex
+                PageInstanceLeft.Instance.DisplayType = NEWSetup.Instance.DisplayType(PageInstanceLeft.Instance.Path)
                 FrmInstanceLeft.RefreshModDisabled()
 
                 WriteIni(PathMcFolder & "PCL.ini", "InstanceCache", "") '要求刷新缓存
@@ -81,8 +82,7 @@ Public Class PageInstanceOverall
                     End If
                     Setup.Set("HintHide", True)
                 End If
-                ' TODO: 测测能不能这么写转换
-                SetupService.SetInt32(SetupEntries.Instance.DisplayType, McInstanceCardType.Hidden, PageInstanceLeft.Instance.Path)
+                NEWSetup.Instance.DisplayType(PageInstanceLeft.Instance.Path) = CInt(McInstanceCardType.Hidden)
                 WriteIni(PathMcFolder & "PCL.ini", "InstanceCache", "") '要求刷新缓存
                 LoaderFolderRun(McInstanceListLoader, PathMcFolder, LoaderFolderRunType.ForceRun, MaxDepth:=1, ExtraPath:="versions\")
             Catch ex As Exception
@@ -94,9 +94,9 @@ Public Class PageInstanceOverall
     '更改描述
     Private Sub BtnDisplayDesc_Click(sender As Object, e As EventArgs) Handles BtnDisplayDesc.Click
         Try
-            Dim OldInfo As String = SetupService.GetString(SetupEntries.Instance.CustomInfo, PageInstanceLeft.Instance.Path)
+            Dim OldInfo As String = NEWSetup.Instance.CustomInfo(PageInstanceLeft.Instance.Path)
             Dim NewInfo As String = MyMsgBoxInput("更改描述", "修改实例的描述文本，留空则使用 PCL 的默认描述。", OldInfo, New ObjectModel.Collection(Of Validate), "默认描述")
-            If NewInfo IsNot Nothing AndAlso OldInfo <> NewInfo Then SetupService.SetString(SetupEntries.Instance.CustomInfo, NewInfo, PageInstanceLeft.Instance.Path)
+            If NewInfo IsNot Nothing AndAlso OldInfo <> NewInfo Then NEWSetup.Instance.CustomInfo(PageInstanceLeft.Instance.Path) = NewInfo
             PageInstanceLeft.Instance = New McInstance(PageInstanceLeft.Instance.Name).Load()
             Reload()
             LoaderFolderRun(McInstanceListLoader, PathMcFolder, LoaderFolderRunType.ForceRun, MaxDepth:=1, ExtraPath:="versions\")
@@ -199,8 +199,8 @@ Public Class PageInstanceOverall
         '进行更改
         Try
             Dim NewLogo As String = ComboDisplayLogo.SelectedItem.Tag
-            SetupService.SetString(SetupEntries.Instance.LogoPath, NewLogo, PageInstanceLeft.Instance.Path)
-            SetupService.SetBool(SetupEntries.Instance.IsLogoCustom, Not NewLogo = "", PageInstanceLeft.Instance.Path)
+            NEWSetup.Instance.LogoPath(PageInstanceLeft.Instance.Path) = NewLogo
+            NEWSetup.Instance.IsLogoCustom(PageInstanceLeft.Instance.Path) = Not NewLogo = ""
             '刷新显示
             WriteIni(PathMcFolder & "PCL.ini", "InstanceCache", "") '要求刷新缓存
             PageInstanceLeft.Instance = New McInstance(PageInstanceLeft.Instance.Name).Load()
@@ -214,7 +214,7 @@ Public Class PageInstanceOverall
     '收藏夹
     Private Sub BtnDisplayStar_Click(sender As Object, e As EventArgs) Handles BtnDisplayStar.Click
         Try
-            SetupService.SetBool(SetupEntries.Instance.Starred, Not PageInstanceLeft.Instance.IsStar, PageInstanceLeft.Instance.Path)
+            NEWSetup.Instance.Starred(PageInstanceLeft.Instance.Path) = Not PageInstanceLeft.Instance.IsStar
             PageInstanceLeft.Instance = New McInstance(PageInstanceLeft.Instance.Name).Load()
             Reload()
             McInstanceListForceRefresh = True
