@@ -6,6 +6,7 @@ Public Class ModSetup
 #Region "基础"
 
     Public Sub New()
+        SetupEntries.EntryDictionary("SystemSystemUpdateBranch") = New SetupEntry(SetupEntrySource.PathLocal, "SystemSystemUpdateBranch", If(VersionBaseName.Contains("beta"), 1, 0))
         AddHandler SetupService.SetupChanged, AddressOf OnSetupChanged
     End Sub
 
